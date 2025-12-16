@@ -1,4 +1,4 @@
-from fastapi import HTTPException, Header
+from fastapi import Header, HTTPException
 from supabase import create_client
 import os
 
@@ -16,12 +16,14 @@ def get_current_user(authorization: str = Header(None)):
 
     token = authorization.replace("Bearer ", "")
 
-    user_response = supabase.auth.get_user(token)
+    try:
+        response = supabase.auth.get_user(token)
+        user = response.user
 
-    if user_response.error:
-        raise HTTPException(
-            status_code=401,
-            detail="Token inválido o expirado"
-        )
+        if user is None:
+            raise HTTPException(status_code=401, detail="Token inválido")
 
-    return user_response.data.user
+        return user
+
+    except Exception as e:
+        raise HTTPException(status_code=401, detail="Token inválido")
