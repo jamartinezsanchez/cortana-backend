@@ -43,3 +43,31 @@ def create_note(
         "status": "ok",
         "note": response.data
     }
+
+@app.get("/notes")
+def get_notes(user=Depends(get_current_user)):
+    response = supabase.table("notes") \
+        .select("*") \
+        .eq("user_id", user.id) \
+        .execute()
+
+    return response.data
+
+@app.delete("/notes/{note_id}")
+def delete_note(note_id: int, user=Depends(get_current_user)):
+    response = supabase.table("notes") \
+        .delete() \
+        .eq("id", note_id) \
+        .eq("user_id", user.id) \
+        .execute()
+
+    if not response.data:
+        return {
+            "status": "error",
+            "message": "Nota no encontrada o no autorizada"
+        }
+
+    return {
+        "status": "ok",
+        "deleted_note": response.data
+    }
