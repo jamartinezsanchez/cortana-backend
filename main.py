@@ -63,3 +63,26 @@ def delete_note(note_id: UUID, user=Depends(get_current_user)):
         .execute()
 
     return {"status": "deleted"}
+
+@app.put("/notes/{note_id}")
+def update_note(
+    note_id: str,
+    note: NoteCreate,
+    user=Depends(get_current_user)
+):
+    response = supabase.table("notes") \
+        .update({
+            "title": note.title,
+            "content": note.content
+        }) \
+        .eq("id", note_id) \
+        .eq("user_id", user.id) \
+        .execute()
+
+    if not response.data:
+        return {"error": "Nota no encontrada o no autorizada"}
+
+    return {
+        "status": "updated",
+        "note": response.data
+    }
