@@ -3,6 +3,7 @@ from supabase import create_client
 from pydantic import BaseModel
 import os
 from auth import get_current_user
+from uuid import UUID
 
 app = FastAPI(title="Cortana Assistant API")
 
@@ -54,20 +55,11 @@ def get_notes(user=Depends(get_current_user)):
     return response.data
 
 @app.delete("/notes/{note_id}")
-def delete_note(note_id: int, user=Depends(get_current_user)):
-    response = supabase.table("notes") \
+def delete_note(note_id: UUID, user=Depends(get_current_user)):
+    supabase.table("notes") \
         .delete() \
-        .eq("id", note_id) \
+        .eq("id", str(note_id)) \
         .eq("user_id", user.id) \
         .execute()
 
-    if not response.data:
-        return {
-            "status": "error",
-            "message": "Nota no encontrada o no autorizada"
-        }
-
-    return {
-        "status": "ok",
-        "deleted_note": response.data
-    }
+    return {"status": "deleted"}
