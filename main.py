@@ -1,3 +1,4 @@
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi import FastAPI, Depends
 from supabase import create_client
 from pydantic import BaseModel
@@ -6,6 +7,18 @@ from auth import get_current_user
 from uuid import UUID
 
 app = FastAPI(title="Cortana Assistant API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[
+        "http://localhost:5173",   # Vite en local
+        "https://cortana-backend-3k7q.onrender.com"
+    ],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+
 
 SUPABASE_URL = os.getenv("SUPABASE_URL")
 SUPABASE_KEY = os.getenv("SUPABASE_KEY")
