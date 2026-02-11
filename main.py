@@ -5,6 +5,9 @@ from pydantic import BaseModel
 import os
 from auth import get_current_user
 from uuid import UUID
+from dotenv import load_dotenv
+load_dotenv()
+
 
 app = FastAPI(title="Cortana Assistant API")
 app.add_middleware(
@@ -129,3 +132,23 @@ def get_memories(user=Depends(get_current_user)):
         .execute()
 
     return response.data
+class ChatRequest(BaseModel):
+    message: str
+
+@app.post("/chat")
+def chat(
+    chat_request: ChatRequest,
+    user=Depends(get_current_user)
+):
+    # Traer memorias del usuario
+    memories_response = supabase.table("memories") \
+        .select("*") \
+        .eq("user_id", user.id) \
+        .execute()
+
+    memories = memories_response.data if memories_response.data else []
+
+    # Procesar con Gemini
+    result = process_command(chat_request.message, memories)
+
+    return result
