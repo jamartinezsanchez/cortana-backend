@@ -30,6 +30,11 @@ class NoteCreate(BaseModel):
     title: str
     content: str
 
+class MemoryCreate(BaseModel):
+    content: str
+    type: str  # preference | reminder | fact | context
+
+
 # ---------- ROUTES ----------
 @app.get("/")
 def home():
@@ -99,3 +104,28 @@ def update_note(
         "status": "updated",
         "note": response.data
     }
+
+@app.post("/memories")
+def create_memory(
+    memory: MemoryCreate,
+    user=Depends(get_current_user)
+):
+    response = supabase.table("memories").insert({
+        "content": memory.content,
+        "type": memory.type,
+        "user_id": user.id
+    }).execute()
+
+    return {
+        "status": "ok",
+        "memory": response.data
+    }
+
+@app.get("/memories")
+def get_memories(user=Depends(get_current_user)):
+    response = supabase.table("memories") \
+        .select("*") \
+        .eq("user_id", user.id) \
+        .execute()
+
+    return response.data
