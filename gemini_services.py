@@ -1,13 +1,16 @@
-from google import genai
 import os
+from google import genai
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+# Crear cliente con API Key
+client = genai.Client(
+    api_key=os.getenv("GEMINI_API_KEY")
+)
 
-def preguntar_gemini(mensaje):
+def ask_gemini(message: str):
     try:
         response = client.models.generate_content(
             model="gemini-1.5-flash",
-            contents=mensaje
+            contents=message
         )
 
         return response.text
