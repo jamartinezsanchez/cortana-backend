@@ -1,5 +1,5 @@
-from google import genai
 import os
+from google import genai
 
 def ask_gemini(message: str):
     client = genai.Client(
@@ -11,4 +11,8 @@ def ask_gemini(message: str):
         contents=message
     )
 
-    return response.text
+    # Forma segura de extraer el texto
+    if response.candidates:
+        return response.candidates[0].content.parts[0].text
+    
+    return "No se recibió respuesta de Gemini."
