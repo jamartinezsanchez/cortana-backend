@@ -100,8 +100,5 @@ def get_memories(user=Depends(get_current_user)):
 # ---------- CHAT (Gemini) ----------
 @app.post("/chat")
 def chat(data: ChatRequest, user=Depends(get_current_user)):
-    try:
-        respuesta = ask_gemini(data.message)
-        return {"response": respuesta}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error al comunicarse con Gemini: {str(e)}")
+    respuesta = ask_gemini(data.message)
+    return {"response": respuesta}
